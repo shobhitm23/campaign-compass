@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+@layer components {
+  .sidebar-link {
+    @apply flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors duration-150;
+  }
+
+  .sidebar-link:hover {
+    @apply bg-gray-100 text-gray-900;
+  }
+
+  .sidebar-link.active {
+    @apply bg-blue-50 text-blue-700 font-medium;
+  }
+}
