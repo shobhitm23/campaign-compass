@@ -27,3 +27,6 @@ Thumbs.db
 
 # Claude internal
 .claude/
+
+# Project docs
+docs/Capital_Compass_PRD_v2.docx
