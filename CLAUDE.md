@@ -30,13 +30,56 @@ All planning documents live in `docs/`. Read these before making significant cha
 | File | What it contains |
 |---|---|
 | `docs/Capital_Compass_PRD_v2.md` | Full product requirements: vision, all feature specs, roadmap phases, pricing, competitive analysis, success metrics |
-| `docs/CURRENT_STATE.md` | Build snapshot: what's done, all API endpoints, data coverage, verified working features as of 2026-02-18 |
+| `docs/CURRENT_STATE.md` | Build snapshot: what's done, all API endpoints, data coverage, verified working features as of 2026-02-22 |
 
 Both are plain markdown — readable directly in Claude Code.
 
 ---
 
-## 3. Tech Stack & Rationale
+## 3. GitHub & Project Management
+
+**Repository:** `https://github.com/shobhitm23/Campaign-Compass`
+**Branch:** `master` (7 commits — remote init + MVP + docs)
+
+### Milestones
+
+| # | Title | Issues |
+|---|-------|--------|
+| 2 | Phase 1B — Sector Learning Modules | #3–#9 (7 issues) |
+| 3 | Phase 2A — User Accounts + Subsector Learning | #10–#16 (7 issues) |
+| 4 | Phase 2B — Sector Financial Literacy | #17–#20 (4 issues) |
+| 5 | Phase 3 — Business Model Intelligence + Payments | #21–#27 (7 issues) |
+
+### Labels in use
+
+| Label | Meaning |
+|-------|---------|
+| `phase-1b` / `phase-2a` / `phase-2b` / `phase-3` | Phase assignment |
+| `frontend` / `backend` | Implementation layer |
+| `data` | Content/editorial data work |
+| `ai` | LLM/AI pipeline work |
+| `auth` | Authentication & session |
+| `payments` | Stripe / billing |
+| `infrastructure` | DB, Redis, hosting, cron jobs |
+| `analytics` | Tracking, Plausible, GA4 |
+
+### Issue map — Phase 1B (start here)
+
+| Issue | Title | Labels |
+|-------|-------|--------|
+| #3 | Define learning card schema + pilot content (Tech, Health, Finance) | phase-1b, data |
+| #4 | Write learning card content for remaining 8 sectors | phase-1b, data |
+| #5 | Add GET /api/learn/:sectorId endpoint | phase-1b, backend |
+| #6 | Build LearningModule card carousel UI component | phase-1b, frontend |
+| #7 | Implement localStorage progress tracking | phase-1b, frontend |
+| #8 | Add email capture on module completion | phase-1b, frontend, backend |
+| #9 | Integrate analytics tracking (Plausible or GA4) | phase-1b, frontend, analytics |
+
+> See GitHub for Phase 2A–3 issue details: `gh issue list --repo shobhitm23/Campaign-Compass`
+
+---
+
+## 4. Tech Stack & Rationale
 
 ### Backend (Node.js / Express)
 
@@ -46,7 +89,7 @@ Both are plain markdown — readable directly in Claude Code.
 | `cors` | ^2.8.5 | Enables the dev frontend (port 5173) to call the backend (port 3001) during development. |
 | `dotenv` | ^16.4.5 | Loads `backend/.env` at startup. Keeps API keys out of source code. |
 | `node-cache` | ^5.1.2 | In-process TTL cache. No Redis needed at MVP scale — prevents hammering external APIs without infra overhead. |
-| `yahoo-finance2` | ^2.11.3 | Free stock quotes with no API key required. **Critical caveat: ESM-only package** — requires a dynamic `import()` workaround in this CommonJS backend. See Section 6. |
+| `yahoo-finance2` | ^2.11.3 | Free stock quotes with no API key required. **Critical caveat: ESM-only package** — requires a dynamic `import()` workaround in this CommonJS backend. See Section 7. |
 | `axios` | ^1.6.8 | HTTP client for calling NewsAPI. Simpler error handling than `fetch`. |
 | `nodemon` | ^3.1.0 (dev) | Auto-restarts the server on file save during development. |
 
@@ -77,7 +120,7 @@ These will be needed when Phase 2A begins. Do not install them speculatively.
 
 ---
 
-## 4. Project Structure
+## 5. Project Structure
 
 Every file and folder explained. Read this before creating or moving files.
 
@@ -239,7 +282,7 @@ capital_compass/
 
 ---
 
-## 5. API Endpoints
+## 6. API Endpoints
 
 All endpoints are prefixed `/api`. The frontend calls them as relative paths (e.g. `/api/sectors`) via the Vite proxy in development. In production, a reverse proxy handles the rewrite.
 
@@ -315,7 +358,7 @@ All endpoints are prefixed `/api`. The frontend calls them as relative paths (e.
 
 ---
 
-## 6. External APIs
+## 7. External APIs
 
 ### yahoo-finance2 — Stock Quotes
 
@@ -358,7 +401,7 @@ All endpoints are prefixed `/api`. The frontend calls them as relative paths (e.
 
 ---
 
-## 7. Environment Variables
+## 8. Environment Variables
 
 All variables live in `backend/.env`. There is no `.env` file in the frontend.
 
@@ -387,7 +430,7 @@ When adding new variables: add them to `backend/.env.example` with a comment exp
 
 ---
 
-## 8. Running the Project
+## 9. Running the Project
 
 ```bash
 # Terminal 1 — backend
@@ -413,7 +456,7 @@ To test live news: add `NEWS_API_KEY=your_key` to `backend/.env`.
 
 ---
 
-## 9. Coding Conventions
+## 10. Coding Conventions
 
 Follow these patterns exactly. Do not introduce new patterns without a good reason.
 
@@ -490,7 +533,7 @@ If you change column visibility breakpoints, you must update both the `<th>` in 
 This is a content file, not a code file. Treat changes as editorial work, not engineering work.
 
 **Adding a new subsector:**
-1. Add the entry to the correct sector's `subsectors` array in `data/sectors.js`, following the exact schema in Section 5.
+1. Add the entry to the correct sector's `subsectors` array in `data/sectors.js`, following the exact schema in Section 6.
 2. Add all tickers to `backend/mock/stockMock.js` (the `getMockStocks` function needs to know about them).
 3. Add 5–8 mock articles to `backend/mock/newsMock.js`, keyed by the new subsector's `id`.
 4. No route, service, or frontend code changes are needed.
@@ -503,7 +546,7 @@ This is a content file, not a code file. Treat changes as editorial work, not en
 
 ---
 
-## 10. Phase Scope Boundaries
+## 11. Phase Scope Boundaries
 
 ### Phase 1A — MVP ✅ COMPLETE
 
@@ -521,6 +564,8 @@ Do not re-implement, restructure, or "improve" anything in this list without an 
 - All error states handled — no broken UI states possible
 - `(mock)` indicators on company rows and news articles
 - Verified build: `vite build` → 0 errors, 218KB JS bundle
+
+**Git status:** Committed and pushed to `master`. Repo: `https://github.com/shobhitm23/Campaign-Compass`
 
 ---
 
@@ -547,6 +592,8 @@ Do not re-implement, restructure, or "improve" anything in this list without an 
 
 **Scope boundary:** Sector-level only (11 modules). Subsector-level learning modules are Phase 2A.
 **Free/paid:** All 11 sector modules are free tier.
+
+**GitHub issues:** #3 (schema + pilot content), #4 (remaining 8 sectors), #5 (API endpoint), #6 (carousel UI), #7 (localStorage), #8 (email capture), #9 (analytics)
 
 ---
 
@@ -615,7 +662,7 @@ Do not re-implement, restructure, or "improve" anything in this list without an 
 
 ---
 
-## 11. Product Tiers
+## 12. Product Tiers
 
 Pricing defined in the PRD. Summarized here for scope reference.
 
@@ -637,7 +684,7 @@ Pricing defined in the PRD. Summarized here for scope reference.
 
 ---
 
-## 12. Architectural Decisions (Already Made — Do Not Revisit)
+## 13. Architectural Decisions (Already Made — Do Not Revisit)
 
 These decisions were made deliberately. Future sessions should not re-litigate them. If a decision needs to change, make a conscious case for it first.
 
@@ -685,7 +732,7 @@ The package has no CommonJS export. The backend is CommonJS. The chosen solution
 
 ---
 
-## 13. Known Issues & Carry-Forward Notes
+## 14. Known Issues & Carry-Forward Notes
 
 **`BRK-B` ticker hyphen**
 Works fine in mock data. If it's ever passed raw as a URL query param to an external API (not Yahoo Finance), it may need `encodeURIComponent`. Route handlers currently do no URL encoding on ticker strings.
