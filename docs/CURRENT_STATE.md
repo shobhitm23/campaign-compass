@@ -1,6 +1,6 @@
 # Capital Compass — Current State
 
-Last updated: 2026-02-18
+Last updated: 2026-02-22
 
 ---
 
@@ -13,6 +13,26 @@ Capital Compass is a full-stack financial literacy web app. It presents curated,
 ## Status: MVP Complete ✅
 
 The full application is built and functional end-to-end. Both backend and frontend are wired together, all 35 subsectors serve content, and live data falls back gracefully to mock when no API keys are present.
+
+---
+
+## Git & GitHub
+
+**Repository:** `https://github.com/shobhitm23/Campaign-Compass`
+**Branch:** `master`
+
+**Commit history (abridged):**
+```
+466be75  Initial commit (remote baseline)
+6c64d4c  feat: Capital Compass MVP — full stack implementation
+```
+
+**GitHub project management (set up 2026-02-22):**
+- 4 milestones: Phase 1B, Phase 2A, Phase 2B, Phase 3
+- 12 labels: phase-1b/2a/2b/3, frontend, backend, data, ai, auth, payments, infrastructure, analytics
+- 25 open issues: #3–#9 (Phase 1B), #10–#16 (Phase 2A), #17–#20 (Phase 2B), #21–#27 (Phase 3)
+
+**Next up:** Phase 1B — start with issue #3 (learning card schema and pilot content).
 
 ---
 
@@ -43,7 +63,11 @@ NEWS_API_KEY=your_key_here   # https://newsapi.org/register — free tier
 
 ```
 capital_compass/
-├── CURRENT_STATE.md          ← this file
+├── CLAUDE.md                 ← authoritative onboarding guide (Claude Code reads this automatically)
+├── docs/
+│   ├── CURRENT_STATE.md      ← this file
+│   ├── CLAUDE.md             ← copy of root CLAUDE.md (reference/backup; root is authoritative)
+│   └── Capital_Compass_PRD_v2.md ← full product requirements document (markdown)
 ├── backend/
 │   ├── server.js
 │   ├── .env.example
@@ -199,19 +223,19 @@ Each of the 35 subsectors has:
 
 ## Known Gaps / Not Yet Built
 
-- No user accounts, watchlists, or personalization
+- No user accounts, watchlists, or personalization (tracked: Phase 2A issues #10–#16)
 - No search or filtering across sectors
 - No price chart / sparkline on company rows
 - No sector-level comparison view
 - No dark mode
 - No tests (unit or integration)
 - No production deployment config (Docker, env management, etc.)
-- Subsector count is 35, plan called for 55 — 20 more could be added to `data/sectors.js` following the same schema
+- Subsector count is 35, plan called for 55 — 20 more can be added to `data/sectors.js` following the same schema
 - `BRK-B` ticker has a hyphen — works in mock but may need URL encoding if passed raw in query strings
 
 ---
 
-## Verified Working (as of 2026-02-18)
+## Verified Working (as of 2026-02-22)
 
 ```
 ✅ GET /api/health                                → { status: 'ok' }
@@ -226,4 +250,9 @@ Each of the 35 subsectors has:
 ✅ All 5 subsector panels render (Outlook, Risks, Opportunities, Companies, News)
 ✅ Price change coloring (green positive, red negative)
 ✅ Mock data indicators visible on company rows and articles
+✅ Git repo initialized, 7-commit history on master
+✅ GitHub milestones: Phase 1B (#2), Phase 2A (#3), Phase 2B (#4), Phase 3 (#5)
+✅ GitHub labels: 12 labels (phase-*, frontend, backend, data, ai, auth, payments, infrastructure, analytics)
+✅ 25 GitHub issues created (#3–#27) across all 4 milestones
+✅ docs/Capital_Compass_PRD_v2.md — full PRD in readable markdown
 ```
