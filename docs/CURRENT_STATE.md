@@ -1,6 +1,6 @@
 # Capital Compass — Current State
 
-Last updated: 2026-02-24
+Last updated: 2026-02-24 (Phase 1B issues #5 + #6 shipped)
 
 ---
 
@@ -10,9 +10,9 @@ Capital Compass is a full-stack financial literacy web app. It presents curated,
 
 ---
 
-## Status: MVP Complete ✅
+## Status: Phase 1B (Sector Learning Modules) in progress
 
-The full application is built and functional end-to-end. Both backend and frontend are wired together, all 35 subsectors serve content, and live data falls back gracefully to mock when no API keys are present.
+Phase 1A MVP is complete. Issues #5 + #6 shipped: sector learning module backend + frontend carousel.
 
 ---
 
@@ -26,6 +26,8 @@ The full application is built and functional end-to-end. Both backend and fronte
 466be75  Initial commit (remote baseline)
 6c64d4c  feat: Capital Compass MVP — full stack implementation
 5ea95ff  fix: Phase 1C bug fixes + SubsectorPage tabs
+fbc2f2d  feat: add GET /api/learn/:sectorId endpoint (#5)
+83867c6  feat: add LearningModule carousel UI for sector learning (#6)
 ```
 
 **GitHub project management (set up 2026-02-22):**
@@ -33,7 +35,7 @@ The full application is built and functional end-to-end. Both backend and fronte
 - 12 labels: phase-1b/2a/2b/3, frontend, backend, data, ai, auth, payments, infrastructure, analytics
 - 25 open issues: #3–#9 (Phase 1B), #10–#16 (Phase 2A), #17–#20 (Phase 2B), #21–#27 (Phase 3)
 
-**Next up:** Phase 1B — start with issue #3 (learning card schema and pilot content).
+**Phase 1B progress:** Issues #5 (backend endpoint) and #6 (frontend carousel) complete.
 
 ---
 
@@ -76,7 +78,8 @@ capital_compass/
 │   ├── config/
 │   │   └── constants.js      # TTLs, port, NewsAPI base URL
 │   ├── data/
-│   │   └── sectors.js        # ALL static content — 11 sectors, 35 subsectors
+│   │   ├── sectors.js        # ALL static content — 11 sectors, 35 subsectors
+│   │   └── sectorLearning.js # 77 learning cards (7 × 11 sectors); exports sectorLearning + sectorLearningMap
 │   ├── cache/
 │   │   └── cacheManager.js   # 4 caches: stockCache(6h), newsCache(1h), financialsCache(24h), tickerNewsCache(2h)
 │   ├── mock/
@@ -92,7 +95,9 @@ capital_compass/
 │       ├── sectors.router.js
 │       ├── subsectors.router.js
 │       ├── companies.router.js
-│       └── news.router.js        # includes /ticker/:ticker route
+│       ├── news.router.js        # includes /ticker/:ticker route
+│       ├── financials.router.js
+│       └── learn.router.js       # GET /api/learn/:sectorId → 7 learning cards
 └── frontend/
     ├── index.html
     ├── package.json
@@ -112,7 +117,8 @@ capital_compass/
         │   ├── useCompanies.js    # /api/companies?tickers=...
         │   ├── useNews.js         # /api/news?subsector=...
         │   ├── useFinancials.js   # /api/financials?tickers=...
-        │   └── useTickerNews.js   # /api/news/ticker/:ticker; fetches only when row expanded
+        │   ├── useTickerNews.js   # /api/news/ticker/:ticker; fetches only when row expanded
+        │   └── useLearning.js     # /api/learn/:sectorId + sessionStorage cache
         ├── components/
         │   ├── layout/
         │   │   ├── AppShell.jsx  # Top bar + sidebar + main content wrapper
@@ -131,8 +137,11 @@ capital_compass/
         │   │   ├── CompaniesTable.jsx     # Responsive table; Revenue/Margin/Growth columns
         │   │   ├── CompanyRow.jsx         # Clickable row → inline ticker news expansion
         │   │   └── NewsFeed.jsx          # Article list with timeAgo, external links
+        │   ├── learn/
+        │   │   ├── LearningModule.jsx  # Route component /learn/:sectorId; carousel with keyboard nav
+        │   │   └── LearningCard.jsx    # Dumb card: title, bold-formatted body, progress counter
         │   ├── home/
-        │   │   └── HomePage.jsx  # Sector grid with subsector pill links
+        │   │   └── HomePage.jsx  # Sector grid with subsector pill links + "Learn about this sector →"
         │   └── common/
         │       ├── Card.jsx
         │       ├── LoadingSpinner.jsx
@@ -156,6 +165,7 @@ capital_compass/
 | GET | `/api/news?subsector=X&days=7` | Articles — live via NewsAPI → mock fallback; cached 1h |
 | GET | `/api/financials?tickers=A,B` | Fundamentals via yahoo-finance2 quoteSummary (revenue, margins, growth, PE, beta); null-skeleton on error; cached 24h |
 | GET | `/api/news/ticker/:ticker` | Per-ticker news via Yahoo Finance RSS (rss-parser, 3s timeout); returns `[]` on error; cached 2h |
+| GET | `/api/learn/:sectorId` | 7 learning cards for the sector; 404 if unknown sectorId |
 
 ---
 
@@ -268,4 +278,13 @@ Each of the 35 subsectors has:
 ✅ GitHub labels: 12 labels (phase-*, frontend, backend, data, ai, auth, payments, infrastructure, analytics)
 ✅ 25 GitHub issues created (#3–#27) across all 4 milestones
 ✅ docs/Capital_Compass_PRD_v2.md — full PRD in readable markdown
+✅ GET /api/learn/technology                      → 200, 7 cards
+✅ GET /api/learn/fake                            → 404 { error: 'Sector not found' }
+✅ /learn/:sectorId route renders LearningModule
+✅ LearningCard: bold formatting + progress counter
+✅ Previous/Next buttons with disabled states on first/last card
+✅ ArrowLeft/ArrowRight keyboard navigation
+✅ Completion message on card 7
+✅ "Learn about this sector →" link on each homepage sector card
+✅ Frontend build (vite build) → 0 errors post-Phase-1B
 ```
