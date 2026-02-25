@@ -8,12 +8,13 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "axios": "^1.6.8",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.3",
     "node-cache": "^5.1.2",
-    "yahoo-finance2": "^2.11.3",
-    "axios": "^1.6.8"
+    "rss-parser": "^3.13.0",
+    "yahoo-finance2": "^2.11.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

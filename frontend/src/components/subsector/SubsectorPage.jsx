@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useSubsector } from '../../hooks/useSubsector.js';
 import { useCompanies } from '../../hooks/useCompanies.js';
+import { useFinancials } from '../../hooks/useFinancials.js';
 import { useNews } from '../../hooks/useNews.js';
 import LoadingSpinner from '../common/LoadingSpinner.jsx';
 import ErrorBanner from '../common/ErrorBanner.jsx';
@@ -14,6 +15,7 @@ export default function SubsectorPage() {
   const { subsectorId } = useParams();
   const { data, loading, error } = useSubsector(subsectorId);
   const { data: companies, loading: companiesLoading } = useCompanies(data?.tickers);
+  const { data: financials, loading: financialsLoading } = useFinancials(data?.tickers);
   const { data: news, loading: newsLoading } = useNews(subsectorId);
 
   if (loading) return <LoadingSpinner text="Loading sector data..." />;
@@ -38,7 +40,7 @@ export default function SubsectorPage() {
         <OpportunitiesPanel opportunities={data.opportunities} />
       </div>
 
-      <CompaniesTable companies={companies} loading={companiesLoading} />
+      <CompaniesTable companies={companies} loading={companiesLoading} financials={financials} financialsLoading={financialsLoading} />
 
       <NewsFeed articles={news} loading={newsLoading} />
     </div>

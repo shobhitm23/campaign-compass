@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { fetchNews } = require('../services/newsService');
+const { fetchTickerNews } = require('../services/tickerNewsService');
 const { subsectorMap } = require('../data/sectors');
 const { DEFAULT_NEWS_DAYS } = require('../config/constants');
 
@@ -24,6 +25,18 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.error('[news] Error:', err);
     res.status(500).json({ error: 'Failed to fetch news' });
+  }
+});
+
+// GET /api/news/ticker/:ticker
+router.get('/ticker/:ticker', async (req, res) => {
+  const ticker = req.params.ticker.toUpperCase();
+  try {
+    const articles = await fetchTickerNews(ticker);
+    res.json(articles);
+  } catch (err) {
+    console.error('[news/ticker]', err);
+    res.json([]);
   }
 });
 
