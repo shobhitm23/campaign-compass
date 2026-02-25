@@ -1,6 +1,6 @@
 # Capital Compass — Current State
 
-Last updated: 2026-02-22
+Last updated: 2026-02-24
 
 ---
 
@@ -25,6 +25,7 @@ The full application is built and functional end-to-end. Both backend and fronte
 ```
 466be75  Initial commit (remote baseline)
 6c64d4c  feat: Capital Compass MVP — full stack implementation
+5ea95ff  fix: Phase 1C bug fixes + SubsectorPage tabs
 ```
 
 **GitHub project management (set up 2026-02-22):**
@@ -77,19 +78,21 @@ capital_compass/
 │   ├── data/
 │   │   └── sectors.js        # ALL static content — 11 sectors, 35 subsectors
 │   ├── cache/
-│   │   └── cacheManager.js   # stockCache (6h TTL) + newsCache (1h TTL)
+│   │   └── cacheManager.js   # 4 caches: stockCache(6h), newsCache(1h), financialsCache(24h), tickerNewsCache(2h)
 │   ├── mock/
 │   │   ├── stockMock.js      # ~130 tickers with realistic static quotes
 │   │   └── newsMock.js       # 5-8 articles for all 35 subsectors
 │   ├── services/
-│   │   ├── stockService.js   # yahoo-finance2 → mock fallback
-│   │   └── newsService.js    # NewsAPI → mock fallback
+│   │   ├── stockService.js       # yahoo-finance2 → mock fallback
+│   │   ├── newsService.js        # NewsAPI → mock fallback
+│   │   ├── financialsService.js  # quoteSummary (financialData + defaultKeyStatistics); rawVal() unwrapper; 24h TTL
+│   │   └── tickerNewsService.js  # Yahoo Finance RSS via rss-parser; 3s timeout; 2h TTL
 │   └── routes/
 │       ├── index.js
 │       ├── sectors.router.js
 │       ├── subsectors.router.js
 │       ├── companies.router.js
-│       └── news.router.js
+│       └── news.router.js        # includes /ticker/:ticker route
 └── frontend/
     ├── index.html
     ├── package.json
@@ -105,9 +108,11 @@ capital_compass/
         ├── context/
         │   └── AppContext.jsx # sectors list (fetched once) + sidebarOpen state
         ├── hooks/
-        │   ├── useSubsector.js   # /api/subsectors/:id + sessionStorage cache
-        │   ├── useCompanies.js   # /api/companies?tickers=...
-        │   └── useNews.js        # /api/news?subsector=...
+        │   ├── useSubsector.js    # /api/subsectors/:id + sessionStorage cache
+        │   ├── useCompanies.js    # /api/companies?tickers=...
+        │   ├── useNews.js         # /api/news?subsector=...
+        │   ├── useFinancials.js   # /api/financials?tickers=...
+        │   └── useTickerNews.js   # /api/news/ticker/:ticker; fetches only when row expanded
         ├── components/
         │   ├── layout/
         │   │   ├── AppShell.jsx  # Top bar + sidebar + main content wrapper
@@ -118,12 +123,13 @@ capital_compass/
         │   │   ├── SectorItem.jsx    # Accordion expand/collapse
         │   │   └── SubsectorLink.jsx # NavLink with active styling
         │   ├── subsector/
-        │   │   ├── SubsectorPage.jsx     # Route component, orchestrates all panels
-        │   │   ├── OutlookPanel.jsx      # Summary + time horizon + key drivers
-        │   │   ├── RisksPanel.jsx        # Risk cards with severity badges
+        │   │   ├── SubsectorPage.jsx      # Route component; Overview/Companies/News tab state
+        │   │   ├── TabBar.jsx             # Pill tab bar (Overview | Companies | News)
+        │   │   ├── OutlookPanel.jsx       # Summary + time horizon + key drivers
+        │   │   ├── RisksPanel.jsx         # Risk cards with severity badges
         │   │   ├── OpportunitiesPanel.jsx # Opportunity cards with potential badges
-        │   │   ├── CompaniesTable.jsx    # Responsive table with column hiding
-        │   │   ├── CompanyRow.jsx        # Price coloring, mock indicator
+        │   │   ├── CompaniesTable.jsx     # Responsive table; Revenue/Margin/Growth columns
+        │   │   ├── CompanyRow.jsx         # Clickable row → inline ticker news expansion
         │   │   └── NewsFeed.jsx          # Article list with timeAgo, external links
         │   ├── home/
         │   │   └── HomePage.jsx  # Sector grid with subsector pill links
@@ -148,6 +154,8 @@ capital_compass/
 | GET | `/api/subsectors/:subsectorId` | Full static content: outlook, risks, opportunities, tickers, newsQuery |
 | GET | `/api/companies?tickers=A,B` | Stock quotes — live via yahoo-finance2 → mock fallback; cached 6h |
 | GET | `/api/news?subsector=X&days=7` | Articles — live via NewsAPI → mock fallback; cached 1h |
+| GET | `/api/financials?tickers=A,B` | Fundamentals via yahoo-finance2 quoteSummary (revenue, margins, growth, PE, beta); null-skeleton on error; cached 24h |
+| GET | `/api/news/ticker/:ticker` | Per-ticker news via Yahoo Finance RSS (rss-parser, 3s timeout); returns `[]` on error; cached 2h |
 
 ---
 
@@ -235,7 +243,7 @@ Each of the 35 subsectors has:
 
 ---
 
-## Verified Working (as of 2026-02-22)
+## Verified Working (as of 2026-02-24)
 
 ```
 ✅ GET /api/health                                → { status: 'ok' }
@@ -243,14 +251,19 @@ Each of the 35 subsectors has:
 ✅ GET /api/subsectors/software-saas             → full content, 4 risks, 3 opportunities
 ✅ GET /api/companies?tickers=MSFT,AAPL          → mock quotes with price/change/marketCap
 ✅ GET /api/news?subsector=software-saas&days=7  → 6 mock articles
-✅ Frontend build (vite build)                   → 0 errors, 218KB JS bundle
+✅ GET /api/financials?tickers=MSFT,AAPL         → live fundamentals (grossMargins, revenue, etc.) or null-skeleton
+✅ GET /api/news/ticker/MSFT                     → [] or live articles within ~3s
+✅ Frontend build (vite build)                   → 0 errors
 ✅ Sidebar accordion expand/collapse
 ✅ Active subsector auto-expands its sector
 ✅ Mobile sidebar drawer + overlay dismiss
-✅ All 5 subsector panels render (Outlook, Risks, Opportunities, Companies, News)
+✅ SubsectorPage tabs: Overview | Companies | News (tabs reset to Overview on subsector navigation)
+✅ Overview tab: Outlook + Risks + Opportunities panels
+✅ Companies tab: CompaniesTable with Revenue/GrossMargin/OpMargin/RevGrowth/MktCap columns
+✅ News tab: NewsFeed
+✅ CompanyRow expand → inline ticker news ("No recent news." on error or empty)
 ✅ Price change coloring (green positive, red negative)
 ✅ Mock data indicators visible on company rows and articles
-✅ Git repo initialized, 7-commit history on master
 ✅ GitHub milestones: Phase 1B (#2), Phase 2A (#3), Phase 2B (#4), Phase 3 (#5)
 ✅ GitHub labels: 12 labels (phase-*, frontend, backend, data, ai, auth, payments, infrastructure, analytics)
 ✅ 25 GitHub issues created (#3–#27) across all 4 milestones
