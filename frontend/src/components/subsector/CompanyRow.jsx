@@ -138,9 +138,7 @@ export default function CompanyRow({ company, financials, financialsLoading }) {
           <td colSpan={TOTAL_COLS} className="bg-gray-50 px-6 py-4 border-b border-gray-100">
             {newsLoading ? (
               <p className="text-xs text-gray-400">Loading news…</p>
-            ) : newsError ? (
-              <p className="text-xs text-red-400">Could not load news.</p>
-            ) : tickerNews.length === 0 ? (
+            ) : (newsError || tickerNews.length === 0) ? (
               <p className="text-xs text-gray-400">No recent news.</p>
             ) : (
               <ul className="space-y-2">

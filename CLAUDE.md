@@ -96,6 +96,7 @@ gh issue list --repo shobhitm23/Campaign-Compass --milestone "Phase X"
 - One issue at a time
 - Ask clarifying questions before starting if scope is unclear
 - Don't scope-creep — if you discover adjacent work, note it but don't do it
+- After every `git push`, update `docs/CURRENT_STATE.md` to reflect any new endpoints, components, or architectural changes shipped in that push. This is not optional — do it in the same session before moving on.
 
 **Output:** Working code, committed and ready for review.
 
@@ -354,7 +355,7 @@ gh issue create --title "Title" --body "Body" --label "label" --milestone "Miles
 # Frontend build check
 cd frontend && npm run build  # Should be 0 errors
 
-# Update docs after shipping
+# After every push — required
 # Edit docs/CURRENT_STATE.md to reflect new state
 ```
 

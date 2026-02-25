@@ -9,6 +9,12 @@ async function getYahooFinance() {
   return _yahooFinance;
 }
 
+function rawVal(v) {
+  if (v == null) return null;
+  if (typeof v === 'object' && 'raw' in v) return v.raw;
+  return v;
+}
+
 function nullSkeleton(ticker) {
   return {
     ticker,
@@ -32,18 +38,18 @@ function normalize(ticker, result) {
   const ks = result.defaultKeyStatistics || {};
   return {
     ticker,
-    totalRevenue: fd.totalRevenue ?? null,
-    grossMargins: fd.grossMargins ?? null,
-    operatingMargins: fd.operatingMargins ?? null,
-    profitMargins: fd.profitMargins ?? null,
-    revenueGrowth: fd.revenueGrowth ?? null,
-    earningsGrowth: fd.earningsGrowth ?? null,
-    returnOnEquity: fd.returnOnEquity ?? null,
-    debtToEquity: fd.debtToEquity ?? null,
-    ebitda: fd.ebitda ?? null,
-    forwardPE: ks.forwardPE ?? null,
-    priceToBook: ks.priceToBook ?? null,
-    beta: ks.beta ?? null,
+    totalRevenue:     rawVal(fd.totalRevenue),
+    grossMargins:     rawVal(fd.grossMargins),
+    operatingMargins: rawVal(fd.operatingMargins),
+    profitMargins:    rawVal(fd.profitMargins),
+    revenueGrowth:    rawVal(fd.revenueGrowth),
+    earningsGrowth:   rawVal(fd.earningsGrowth),
+    returnOnEquity:   rawVal(fd.returnOnEquity),
+    debtToEquity:     rawVal(fd.debtToEquity),
+    ebitda:           rawVal(fd.ebitda),
+    forwardPE:        rawVal(ks.forwardPE),
+    priceToBook:      rawVal(ks.priceToBook),
+    beta:             rawVal(ks.beta),
   };
 }
 
@@ -75,6 +81,7 @@ async function fetchFinancials(tickers) {
           return { ticker, result };
         } catch (err) {
           console.warn(`[financialsService] quoteSummary failed for ${ticker}:`, err.message);
+          console.log(`[financialsService] Full error for ${ticker}:`, err);
           return { ticker, result: null };
         }
       })

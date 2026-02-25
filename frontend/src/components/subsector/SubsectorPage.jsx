@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSubsector } from '../../hooks/useSubsector.js';
 import { useCompanies } from '../../hooks/useCompanies.js';
@@ -10,6 +11,7 @@ import RisksPanel from './RisksPanel.jsx';
 import OpportunitiesPanel from './OpportunitiesPanel.jsx';
 import CompaniesTable from './CompaniesTable.jsx';
 import NewsFeed from './NewsFeed.jsx';
+import TabBar from './TabBar.jsx';
 
 export default function SubsectorPage() {
   const { subsectorId } = useParams();
@@ -17,6 +19,12 @@ export default function SubsectorPage() {
   const { data: companies, loading: companiesLoading } = useCompanies(data?.tickers);
   const { data: financials, loading: financialsLoading } = useFinancials(data?.tickers);
   const { data: news, loading: newsLoading } = useNews(subsectorId);
+
+  const [activeTab, setActiveTab] = useState('overview');
+
+  useEffect(() => {
+    setActiveTab('overview');
+  }, [subsectorId]);
 
   if (loading) return <LoadingSpinner text="Loading sector data..." />;
   if (error) return <ErrorBanner message={error} />;
@@ -32,17 +40,32 @@ export default function SubsectorPage() {
         <h1 className="text-2xl font-bold text-gray-900">{data.name}</h1>
       </div>
 
-      {/* Panels */}
-      <OutlookPanel outlook={data.outlook} />
+      {/* Tab bar */}
+      <TabBar activeTab={activeTab} onChange={setActiveTab} />
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <RisksPanel risks={data.risks} />
-        <OpportunitiesPanel opportunities={data.opportunities} />
-      </div>
+      {/* Tab panels */}
+      {activeTab === 'overview' && (
+        <>
+          <OutlookPanel outlook={data.outlook} />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <RisksPanel risks={data.risks} />
+            <OpportunitiesPanel opportunities={data.opportunities} />
+          </div>
+        </>
+      )}
 
-      <CompaniesTable companies={companies} loading={companiesLoading} financials={financials} financialsLoading={financialsLoading} />
+      {activeTab === 'companies' && (
+        <CompaniesTable
+          companies={companies}
+          loading={companiesLoading}
+          financials={financials}
+          financialsLoading={financialsLoading}
+        />
+      )}
 
-      <NewsFeed articles={news} loading={newsLoading} />
+      {activeTab === 'news' && (
+        <NewsFeed articles={news} loading={newsLoading} />
+      )}
     </div>
   );
 }

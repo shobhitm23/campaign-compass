@@ -2,7 +2,7 @@ const Parser = require('rss-parser');
 const { tickerNewsCache } = require('../cache/cacheManager');
 const { YAHOO_RSS_BASE } = require('../config/constants');
 
-const parser = new Parser({ timeout: 8000 });
+const parser = new Parser({ timeout: 3000 });
 
 async function fetchTickerNews(ticker) {
   const upperTicker = ticker.toUpperCase();
