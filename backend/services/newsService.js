@@ -22,8 +22,8 @@ async function fetchNews(subsectorId, newsQuery, days = DEFAULT_NEWS_DAYS) {
 
   const apiKey = process.env.NEWS_API_KEY;
   if (!apiKey || apiKey === 'your_newsapi_key_here') {
-    const mock = getMockNews(subsectorId, days);
-    return mock;
+    console.log(`[newsService] NEWS_API_KEY not set — returning mock news for "${subsectorId}"`);
+    return getMockNews(subsectorId, days);
   }
 
   try {
@@ -49,7 +49,8 @@ async function fetchNews(subsectorId, newsQuery, days = DEFAULT_NEWS_DAYS) {
     newsCache.set(cacheKey, articles);
     return articles;
   } catch (err) {
-    console.warn('[newsService] NewsAPI error, using mock:', err.message);
+    const status = err.response?.status;
+    console.error(`[newsService] NewsAPI fetch failed (${status ? `HTTP ${status}` : err.message}) — falling back to mock for "${subsectorId}"`);
     return getMockNews(subsectorId, days);
   }
 }
