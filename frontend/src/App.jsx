@@ -3,6 +3,7 @@ import { AppProvider } from './context/AppContext.jsx';
 import AppShell from './components/layout/AppShell.jsx';
 import HomePage from './components/home/HomePage.jsx';
 import SubsectorPage from './components/subsector/SubsectorPage.jsx';
+import LearningModule from './components/learn/LearningModule.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/subsector/:subsectorId" element={<SubsectorPage />} />
+            <Route path="/learn/:sectorId" element={<LearningModule />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppShell>

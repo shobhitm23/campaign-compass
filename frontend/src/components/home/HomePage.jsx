@@ -38,6 +38,12 @@ export default function HomePage() {
                   </Link>
                 ))}
               </div>
+              <Link
+                to={`/learn/${sector.id}`}
+                className="mt-3 inline-flex items-center text-xs font-medium text-indigo-600 hover:text-indigo-800"
+              >
+                Learn about this sector →
+              </Link>
             </div>
           </div>
         ))}
